@@ -1,0 +1,55 @@
+---
+swagger: "2.0"
+info:
+  description: "API to roll some dice..."
+  version: "1.0.0"
+  title: "Dice Rolling API"
+host: "diceroll.website.someday"
+paths:
+  /roll:
+    get:
+      tags:
+      - "all"
+      summary: "Rolls some dice"
+      description: "You can roll some dice!\n"
+      operationId: "controllers.all_controller.search_inventory"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "sides"
+        in: "query"
+        description: "Sides of the dice"
+        required: false
+        type: "integer"
+      - name: "quantity"
+        in: "query"
+        description: "Quantity of dice to roll"
+        required: false
+        type: "integer"
+        maximum: 99999
+        minimum: 0
+        format: "int32"
+      responses:
+        200:
+          description: "Dice!"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Roll"
+        400:
+          description: "bad input parameter"
+        500:
+          description: "Internal Server Error"
+      x-tags:
+      - tag: "all"
+definitions:
+  Roll:
+    type: "object"
+    properties:
+      sum:
+        type: "integer"
+        format: "int32"
+        example: 2
+      dice:
+        type: "array"
+        example: ""
