@@ -29,8 +29,9 @@ class DiceTower:
     def tumble(self):
         self.results['sum'] = int(0)
         self.results['dice'] = list()
+        self.die = Dice(sides=self.sides)
         for dice in range(self.quantity):
-            output = Dice(sides=self.sides).roll()
+            output = self.die.roll()
             self.results['sum'] += output
             self.results['dice'].append(output)
         return self.results
