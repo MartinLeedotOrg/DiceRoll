@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_restful import Resource, Api, reqparse
+from collections import OrderedDict
 import random
 
 app = Flask(__name__)
@@ -9,19 +10,34 @@ parser = reqparse.RequestParser()
 parser.add_argument('quantity', type=int, help='Number of dice you want to roll (defaults to 1)')
 parser.add_argument('sides', type=int, help='Sides of the dice (defaults to 6)')
 
+
 class Dice:
     def __init__(self, sides):
         self.sides = sides
 
-    def roll(self) -> object:
-        return random.randint(1,self.sides)
+    def roll(self):
+        return random.randint(1, self.sides)
+
+
+class DiceTower:
+
+    def __init__(self, sides, quantity):
+        self.results = OrderedDict()
+        self.sides = sides
+        self.quantity = quantity
+
+    def tumble(self):
+        self.results['sum'] = int(0)
+        self.results['dice'] = list()
+        for dice in range(self.quantity):
+            output = Dice(sides=self.sides).roll()
+            self.results['sum'] += output
+            self.results['dice'].append(output)
+        return self.results
+
 
 class Roll(Resource):
-
     def get(self):
-        results = dict()
-        results['sum'] = int(0)
-        results['dice'] = list()
 
         args = parser.parse_args()
         sides = args['sides'] or 6
@@ -33,12 +49,10 @@ class Roll(Resource):
         if quantity <= 0:
             return {'error': 'You must roll at least one die'}, 500
 
-        for dice in range(quantity):
-            output = Dice(sides=sides).roll()
-            results['sum'] += output
-            results['dice'].append(output)
+        tower = DiceTower(sides=sides, quantity=quantity)
 
-        return results
+        return tower.tumble()
+
 
 api.add_resource(Roll, '/roll')
 
