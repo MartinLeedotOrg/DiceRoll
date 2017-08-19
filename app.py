@@ -1,10 +1,10 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask_restful import Resource, Api, reqparse
-from collections import OrderedDict
 import random
 
 app = Flask(__name__)
 api = Api(app)
+app.config.update(JSONIFY_PRETTYPRINT_REGULAR = False)
 
 parser = reqparse.RequestParser()
 parser.add_argument('quantity', type=int, help='Number of dice you want to roll (defaults to 1)')
@@ -22,14 +22,14 @@ class Dice:
 class DiceTower:
 
     def __init__(self, sides, quantity):
-        self.results = OrderedDict()
+        self.results = dict()
         self.sides = sides
         self.quantity = quantity
+        self.die = Dice(sides=self.sides)
 
     def tumble(self):
         self.results['sum'] = int(0)
         self.results['dice'] = list()
-        self.die = Dice(sides=self.sides)
         for dice in range(self.quantity):
             output = self.die.roll()
             self.results['sum'] += output
@@ -38,7 +38,8 @@ class DiceTower:
 
 
 class Roll(Resource):
-    def get(self):
+    @staticmethod
+    def get():
 
         args = parser.parse_args()
         sides = args['sides'] or 6
@@ -48,11 +49,14 @@ class Roll(Resource):
             return {'error': 'Dice must have at least one side. At least two, really...'}, 500
 
         if quantity <= 0:
-            return {'error': 'You must roll at least one die'}, 500
+            return {'error': 'You must roll at least one die.'}, 500
+
+        if quantity >= 1000000:
+            return {'error': 'We\'re gonna need a bigger boat.'}, 403
 
         tower = DiceTower(sides=sides, quantity=quantity)
 
-        return tower.tumble()
+        return jsonify(tower.tumble())
 
 
 api.add_resource(Roll, '/roll')
