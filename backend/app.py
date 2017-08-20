@@ -1,9 +1,11 @@
 from flask import Flask, jsonify
+from flask_cors import CORS
 from flask_restful import Resource, Api, reqparse
 import random
 
 app = Flask(__name__)
 api = Api(app)
+cors = CORS(app, resources={r"/*": {"origins": "*"}})
 app.config.update(JSONIFY_PRETTYPRINT_REGULAR = False)
 
 parser = reqparse.RequestParser()

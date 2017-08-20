@@ -1,7 +1,10 @@
-from scipy.stats import chisquare
-import app
-import unittest
 import json
+import unittest
+
+from scipy.stats import chisquare
+
+import backend.app as app
+
 
 class FlaskrTestCase(unittest.TestCase):
 
